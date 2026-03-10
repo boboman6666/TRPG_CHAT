@@ -241,8 +241,8 @@
             try {
                 let text = ""; let username = "";
                 if (isAuto) {
-                    const viewers = ["사이버펑크팬", "익명유저", "핑크블랙", "네온사인"];
-                    const messages = ["오 분위기 좋은데?", "ㅋㅋ 대박", "주사위 운 무엇", "긴장감 미쳤다"];
+                    const viewers = ["무해", "형님", "츠네", "참치", "눈사람", "대학교 7학년", "일짱", "살육머신", "초밥먹고싶다", "잼민TV"];
+                    const messages = ["오 분위기 좋은데?", "ㅋㅋ 대박", "와 얼굴이 눈부시다.", "눈누난나", "일짱은 나다.", "일빠", "오빠 사랑해요~~", "노잼", "유잼!", "이열ㅋㅋ"];
                     username = viewers[Math.floor(Math.random() * viewers.length)];
                     text = messages[Math.floor(Math.random() * messages.length)];
                 } else {
@@ -307,7 +307,7 @@
                 if(shootBtn) shootBtn.disabled = true;
 
                 cooldownTimer = setInterval(() => {
-                    document.getElementById('customInput').placeholder = `데이터 과부하... ${timeLeft}초 후 입력 가능`;
+                    document.getElementById('customInput').placeholder = `${timeLeft}초 후 입력 가능`;
                     timeLeft--;
                     if (timeLeft < 0) {
                         clearInterval(cooldownTimer);
@@ -352,5 +352,6 @@
     </script>
 </body>
 </html>
+
 
 
