@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: 'Malgun Gothic', sans-serif;
-            background-color: #0f0f0f; /* 유튜브 다크모드 배경 */
+            background-color: #0f0f0f;
             color: #ffffff;
             margin: 0;
             display: flex;
@@ -41,7 +41,7 @@
         #chat-header { padding: 10px 15px; background-color: #000; border-bottom: 1px solid #333; font-weight: bold; color: #ff69b4; font-size: 14px; }
         #chat-container { flex-grow: 1; padding: 15px 10px; overflow-y: auto; display: flex; flex-direction: column; }
         
-        /* 유튜브 스타일 채팅 라인 */
+        /* 유튜브 스타일 일반 채팅 라인 */
         .chat-line {
             display: flex; align-items: flex-start; margin-bottom: 6px; padding: 4px 8px;
             animation: fadeIn 0.2s ease-in; position: relative; border-radius: 4px;
@@ -70,19 +70,24 @@
             font-size: 10px; cursor: pointer; border-radius: 3px; position: absolute; right: 10px; top: 10px;
         }
 
-        /* --- 하단 입력 패널 (핑크&블랙) --- */
+        /* --- 하단 입력 패널 --- */
         #input-area { background-color: #000; padding: 10px; border-top: 1px solid #333; display: flex; flex-direction: column; gap: 8px; }
         
-        /* 슈퍼챗 금액 설정 팝업 (기본 숨김) */
-        #sc-panel { display: none; background-color: #222; border: 1px solid #ff1493; padding: 10px; border-radius: 8px; flex-direction: column; gap: 8px; }
+        /* [수정됨] 슈퍼챗 전용 패널 */
+        #sc-panel { display: none; background-color: #1a1a1a; border: 1px solid #ff1493; padding: 10px; border-radius: 8px; flex-direction: column; gap: 8px; margin-bottom: 5px;}
         .sc-title { font-size: 12px; color: #ff69b4; font-weight: bold; }
-        #scAmount { padding: 8px; background: #111; border: 1px solid #555; color: white; border-radius: 4px; }
+        .sc-input-group { display: flex; gap: 5px; }
+        #scAmount { width: 80px; padding: 8px; background: #000; border: 1px solid #555; color: white; border-radius: 4px; outline: none;}
+        #scTextInput { flex-grow: 1; padding: 8px; background: #000; border: 1px solid #555; color: white; border-radius: 4px; outline: none;}
+        #scAmount:focus, #scTextInput:focus { border-color: #ff1493; }
         .sc-btns { display: flex; gap: 5px; }
         .sc-btns button { flex: 1; padding: 8px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-cancel { background: #555; color: white; }
+        .btn-cancel { background: #444; color: white; }
+        .btn-cancel:hover { background: #555; }
         .btn-shoot { background: #ff1493; color: white; }
+        .btn-shoot:hover { background: #e0007c; }
 
-        /* 메인 채팅 입력창 */
+        /* 메인 일반 채팅 입력창 */
         .input-row { display: flex; gap: 5px; align-items: center; }
         #currentNickname { 
             width: 70px; padding: 8px 5px; background: #111; border: 1px solid #ff69b4; 
@@ -90,13 +95,13 @@
         }
         #customInput { flex-grow: 1; padding: 10px; background-color: #222; border: 1px solid #555; color: white; border-radius: 20px; font-size: 13px; outline: none; }
         #customInput:focus { border-color: #ff69b4; }
-        #customInput:disabled { background-color: #111; cursor: not-allowed; }
+        #customInput:disabled, #scTextInput:disabled, #scAmount:disabled { background-color: #111; cursor: not-allowed; opacity: 0.6; }
         
         .sc-toggle-btn { background: transparent; color: #ff69b4; font-weight: bold; font-size: 18px; border: none; cursor: pointer; padding: 0 5px; }
         .send-btn { background: transparent; color: #ff69b4; border: none; font-weight: bold; padding: 0 10px; cursor: pointer; font-size: 14px; }
         .send-btn:disabled, .sc-toggle-btn:disabled { color: #555; cursor: not-allowed; }
 
-        /* GM 컨트롤 */
+        /* GM 전용 컨트롤 */
         #gm-controls { display: none; gap: 5px; margin-top: 5px; }
         .gm-btn { background: #333; color: white; border: 1px solid #ff69b4; font-size: 11px; padding: 5px; border-radius: 4px; cursor: pointer; flex: 1; }
         .gm-btn:hover { background: #ff1493; }
@@ -129,19 +134,22 @@
 
         <div id="input-area">
             <div id="sc-panel">
-                <div class="sc-title">💎 슈퍼챗 금액 설정 (최대 50만원)</div>
-                <input type="number" id="scAmount" min="1000" max="500000" step="1000" value="5000">
+                <div class="sc-title">💎 슈퍼챗 후원하기</div>
+                <div class="sc-input-group">
+                    <input type="number" id="scAmount" min="1000" max="500000" step="1000" value="5000" title="금액(원)">
+                    <input type="text" id="scTextInput" placeholder="여기에 슈퍼챗 메시지를 입력하세요..." onkeypress="handleScKeyPress(event)">
+                </div>
                 <div class="sc-btns">
                     <button class="btn-cancel" onclick="toggleScPanel()">취소</button>
-                    <button class="btn-shoot" onclick="sendMessage(true)">후원 전송</button>
+                    <button class="btn-shoot" onclick="sendSuperchat()">후원 전송</button>
                 </div>
             </div>
 
             <div class="input-row">
                 <input type="text" id="currentNickname" title="닉네임 변경">
-                <input type="text" id="customInput" placeholder="채팅 메시지..." onkeypress="handleKeyPress(event)">
+                <input type="text" id="customInput" placeholder="일반 채팅 메시지..." onkeypress="handleKeyPress(event)">
                 <button id="scToggleBtn" class="sc-toggle-btn" onclick="toggleScPanel()" title="슈퍼챗">₩</button>
-                <button id="sendBtn" class="send-btn" onclick="sendMessage(false)">전송</button>
+                <button id="sendBtn" class="send-btn" onclick="sendNormalMessage(false)">전송</button>
             </div>
             
             <div id="gm-controls" class="input-row">
@@ -151,16 +159,15 @@
     </div>
 
     <script>
-        // 데이터베이스
+        // 매그파이님의 파이어베이스 설정값
         const firebaseConfig = {
             apiKey: "AIzaSyBzr7u2js7Hkg8JAhSUYYVSWpR88I8YECQ",
             authDomain: "프로젝트명.firebaseapp.com",
-            databaseURL: "https://trpg-chat-58d0c-default-rtdb.firebaseio.com", // ★주의: URL 형식을 맞췄습니다.
+            databaseURL: "https://trpg-chat-58d0c-default-rtdb.firebaseio.com",
             projectId: "trpg-chat-58d0c",
             storageBucket: "trpg-chat-58d0c.firebasestorage.app",
             messagingSenderId: "793472714544",
-            appId: "1:793472714544:web:0392933373c87b3720aaf5",
-            measurementId: "G-MHQSLW0S7B"
+            appId: "1:793472714544:web:0392933373c87b3720aaf5"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -169,7 +176,7 @@
         let currentUserMode = "";
         let cooldownTimer = null;
 
-        // 로그인 로직
+        // 로그인
         function login(mode) {
             const nicknameInput = document.getElementById('currentNickname');
             if (mode === 'player') {
@@ -199,14 +206,14 @@
             if (snapshot.val().censored) triggerGlitchEffect(snapshot.key);
         });
 
-        // 유튜브 슈퍼챗 구간별 컬러 설정 함수
+        // 유튜브 슈퍼챗 구간별 컬러 설정
         function getSuperchatColor(amount) {
-            if (amount < 5000) return { header: '#1565C0', body: '#1E88E5', text: '#ffffff' }; // 파랑
-            if (amount < 10000) return { header: '#00897B', body: '#00BFA5', text: '#000000' }; // 초록
-            if (amount < 20000) return { header: '#F57F17', body: '#FFEB3B', text: '#000000' }; // 노랑
-            if (amount < 50000) return { header: '#E65100', body: '#FF9800', text: '#ffffff' }; // 주황
-            if (amount < 100000) return { header: '#C2185B', body: '#E91E63', text: '#ffffff' }; // 마젠타
-            return { header: '#B71C1C', body: '#E53935', text: '#ffffff' }; // 빨강
+            if (amount < 5000) return { header: '#1565C0', body: '#1E88E5', text: '#ffffff' }; 
+            if (amount < 10000) return { header: '#00897B', body: '#00BFA5', text: '#000000' }; 
+            if (amount < 20000) return { header: '#F57F17', body: '#FFEB3B', text: '#000000' }; 
+            if (amount < 50000) return { header: '#E65100', body: '#FF9800', text: '#ffffff' }; 
+            if (amount < 100000) return { header: '#C2185B', body: '#E91E63', text: '#ffffff' }; 
+            return { header: '#B71C1C', body: '#E53935', text: '#ffffff' }; 
         }
 
         function displayMessage(id, username, text, isSuperchat, amount, isCensored) {
@@ -260,12 +267,12 @@
         function toggleScPanel() {
             const panel = document.getElementById('sc-panel');
             panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+            if (panel.style.display === 'flex') document.getElementById('scTextInput').focus();
         }
 
-        function sendMessage(isSuperchat, isAuto = false) {
-            let text = "";
-            let username = "";
-            let amount = 0;
+        // [수정됨] 일반 채팅 전송 전용 함수
+        function sendNormalMessage(isAuto = false) {
+            let text = ""; let username = "";
 
             if (isAuto) {
                 const viewers = ["사이버펑크팬", "익명유저", "핑크블랙", "네온사인"];
@@ -274,48 +281,69 @@
                 text = messages[Math.floor(Math.random() * messages.length)];
             } else {
                 text = document.getElementById('customInput').value.trim();
-                // 입력창 왼쪽의 닉네임 칸에서 실시간으로 이름을 가져옵니다!
                 username = document.getElementById('currentNickname').value.trim() || "익명";
                 
                 if (!text) return;
                 document.getElementById('customInput').value = '';
                 
-                if (isSuperchat) {
-                    amount = parseInt(document.getElementById('scAmount').value) || 5000;
-                    document.getElementById('sc-panel').style.display = 'none';
-                }
-
-                // 플레이어 쿨다운 (30초)
                 if (currentUserMode === 'player') startCooldown();
             }
 
             db.ref('messages').push({
-                username: username, text: text, isSuperchat: isSuperchat, 
+                username: username, text: text, isSuperchat: false, 
+                amount: 0, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        // [수정됨] 슈퍼챗 전송 전용 함수 (금액 + 메시지 통합)
+        function sendSuperchat() {
+            let text = document.getElementById('scTextInput').value.trim();
+            let username = document.getElementById('currentNickname').value.trim() || "익명";
+            let amount = parseInt(document.getElementById('scAmount').value) || 5000;
+
+            if (!text) return alert("슈퍼챗 메시지를 입력해주세요!");
+
+            // 전송 완료 시 패널 닫기 및 초기화
+            document.getElementById('scTextInput').value = '';
+            document.getElementById('sc-panel').style.display = 'none';
+
+            if (currentUserMode === 'player') startCooldown();
+
+            db.ref('messages').push({
+                username: username, text: text, isSuperchat: true, 
                 amount: amount, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
             });
         }
 
+        // [수정됨] 엔터키 분리 (일반창 엔터 vs 슈퍼챗창 엔터)
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !document.getElementById('sendBtn').disabled) sendNormalMessage(false);
+        }
+        function handleScKeyPress(event) {
+            if (event.key === 'Enter' && !document.querySelector('.btn-shoot').disabled) sendSuperchat();
+        }
+
         function startCooldown() {
-            const inputField = document.getElementById('customInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const scBtn = document.getElementById('scToggleBtn');
+            const inputs = ['customInput', 'scTextInput', 'scAmount'];
+            const btns = ['sendBtn', 'scToggleBtn'];
+            const shootBtn = document.querySelector('.btn-shoot');
             let timeLeft = 30;
 
-            inputField.disabled = true; sendBtn.disabled = true; scBtn.disabled = true;
+            inputs.forEach(id => document.getElementById(id).disabled = true);
+            btns.forEach(id => document.getElementById(id).disabled = true);
+            shootBtn.disabled = true;
 
             cooldownTimer = setInterval(() => {
-                inputField.placeholder = `데이터 과부하... ${timeLeft}초 후 입력 가능`;
+                document.getElementById('customInput').placeholder = `데이터 과부하... ${timeLeft}초 후 입력 가능`;
                 timeLeft--;
                 if (timeLeft < 0) {
                     clearInterval(cooldownTimer);
-                    inputField.disabled = false; sendBtn.disabled = false; scBtn.disabled = false;
-                    inputField.placeholder = "채팅 메시지...";
+                    inputs.forEach(id => document.getElementById(id).disabled = false);
+                    btns.forEach(id => document.getElementById(id).disabled = false);
+                    shootBtn.disabled = false;
+                    document.getElementById('customInput').placeholder = "일반 채팅 메시지...";
                 }
             }, 1000);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !document.getElementById('sendBtn').disabled) sendMessage(false);
         }
 
         function triggerGlitchEffect(id) {
@@ -335,14 +363,13 @@
             }, 50);
         }
 
-        let autoChatInterval;
-        let isAutoChatOn = false;
+        let autoChatInterval; let isAutoChatOn = false;
         function toggleAutoChat() {
             const btn = document.getElementById('toggleAutoBtn');
             isAutoChatOn = !isAutoChatOn;
             if (isAutoChatOn) {
                 btn.textContent = "자동채팅 끄기"; btn.style.backgroundColor = "#ff0000";
-                autoChatInterval = setInterval(() => sendMessage(false, true), Math.random() * 2000 + 3000); 
+                autoChatInterval = setInterval(() => sendNormalMessage(true), Math.random() * 2000 + 3000); 
             } else {
                 btn.textContent = "자동채팅 켜기"; btn.style.backgroundColor = "#333";
                 clearInterval(autoChatInterval);
