@@ -96,7 +96,7 @@
         <div id="chat-container"></div>
         <div id="input-area">
             <div id="sc-panel">
-                <div class="sc-title">💎 슈퍼챗 후원하기</div>
+                <div class="sc-title"> 슈퍼챗 후원하기</div>
                 <div class="sc-input-group">
                     <input type="number" id="scAmount" min="1000" max="500000" step="1000" value="5000" title="금액(원)">
                     <input type="text" id="scTextInput" placeholder="여기에 슈퍼챗 메시지를 입력하세요..." onkeypress="handleScKeyPress(event)">
@@ -117,7 +117,7 @@
             <div id="gm-controls" class="input-row">
                 <button id="toggleAutoBtn" class="gm-btn" onclick="toggleAutoChat()">자동채팅 켜기</button>
                 <button id="toggleStreamBtn" class="gm-btn" onclick="toggleStream()" style="background-color: #d32f2f; border-color: #d32f2f;">🔴 방송 끄기</button>
-                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;">🔥 초기화</button>
+                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;"> 초기화</button>
             </div>
         </div>
     </div>
@@ -176,7 +176,7 @@
                 // 방송 켜짐
                 header.innerHTML = '🔴 라이브 스트리밍 중...';
                 header.style.color = '#ff69b4';
-                if(streamBtn) { streamBtn.innerText = '🔴 방송 끄기'; streamBtn.style.backgroundColor = '#d32f2f'; streamBtn.style.borderColor = '#d32f2f'; }
+                if(streamBtn) { streamBtn.innerText = ' 방송 끄기'; streamBtn.style.backgroundColor = '#d32f2f'; streamBtn.style.borderColor = '#d32f2f'; }
                 
                 // 쿨다운(globalTimeLeft) 중이 아닐 때만 입력창을 다시 엽니다.
                 if (globalTimeLeft <= 0) {
@@ -441,3 +441,4 @@
     </script>
 </body>
 </html>
+
