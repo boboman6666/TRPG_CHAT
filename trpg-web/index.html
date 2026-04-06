@@ -7,18 +7,26 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <style>
+<style>
+        /* 🚨 [업데이트] body 배경을 solid 검은색(#0f0f0f)에서 이미지로 변경 */
         body {
             font-family: 'Malgun Gothic', sans-serif;
-            background-color: #0f0f0f;
             color: #ffffff;
             margin: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+
+            /* 배경 이미지 설정 영역 */
+            background-image: url('background.png'); /* 업로드한 이미지 파일명 */
+            background-size: cover; /* 이미지가 화면 전체를 꽉 채우도록 확대/축소 */
+            background-position: center; /* 이미지를 중앙에 배치 */
+            background-repeat: no-repeat; /* 이미지 반복 안 함 */
+            background-attachment: fixed; /* 스크롤해도 배경은 고정됨 (추천) */
         }
 
+        /* 🚨 [업데이트] 로그인 화면의 검은 배경을 투명하게 만들어 body 배경이 보이도록 함 */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -26,85 +34,33 @@
             justify-content: center;
             height: 100vh;
             padding: 20px;
-            background-color: #000;
+            background-color: transparent; /* 투명하게 변경 */
         }
 
-        #login-logo {
-            max-width: 600px;
-            max-height: 300px;
-            margin-bottom: 20px;
-            object-fit: contain;
-        }
-
-        .login-title {
-            color: #ff1493;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            letter-spacing: 2px;
-        }
-
-        .login-box {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-            .login-box label {
-                display: block;
-                font-size: 12px;
-                color: #aaa;
-                margin-bottom: 5px;
-            }
-
-        .login-input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            background: #222;
-            border: 1px solid #ff69b4;
-            color: white;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: #ff69b4;
-            color: black;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-            .login-btn.gm {
-                background: #444;
-                color: #ff69b4;
-                border: 1px solid #ff69b4;
-            }
-
-            .login-btn:hover {
-                background: #ff1493;
-                color: white;
-            }
-
-        #chat-screen {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-        }
-
+        #login-logo { max-width: 600px; max-height: 300px; margin-bottom: 20px; object-fit: contain; }
+        .login-title { color: #ff1493; font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: 2px; }
+        .login-box { width: 100%; margin-bottom: 20px; }
+        .login-box label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; }
+        .login-input { width: 100%; padding: 10px; box-sizing: border-box; background: rgba(34, 34, 34, 0.8); border: 1px solid #ff69b4; color: white; border-radius: 4px; margin-bottom: 10px; }
+        .login-btn { width: 100%; padding: 12px; background: #ff69b4; color: black; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .login-btn.gm { background: #444; color: #ff69b4; border: 1px solid #ff69b4; }
+        .login-btn:hover { background: #ff1493; color: white; }
+        
+        #chat-screen { display: none; flex-direction: column; height: 100vh; }
+        
+        /* 🚨 [업데이트] 헤더 배경을 반투명하게 */
         #chat-header {
             padding: 10px 15px;
-            background-color: #000;
+            background-color: rgba(0, 0, 0, 0.6); /* 반투명 검은색 */
             border-bottom: 1px solid #333;
             font-weight: bold;
             color: #ff69b4;
             font-size: 14px;
             flex-shrink: 0;
+            z-index: 5;
         }
 
+        /* 🚨 [업데이트] 채팅창 영역을 투명하게 해서 배경이미지가 보이도록 함 */
         #chat-container {
             flex-grow: 1;
             padding: 15px 10px;
@@ -112,8 +68,10 @@
             display: flex;
             flex-direction: column;
             scroll-behavior: smooth;
+            background-color: transparent; /* 투명하게 변경 */
         }
-
+        
+        /* 채팅줄 스타일은 유지하되 가독성을 위해 살짝 배경 처리 */
         .chat-line {
             flex-shrink: 0;
             display: flex;
@@ -123,354 +81,71 @@
             animation: fadeIn 0.2s ease-in;
             position: relative;
             border-radius: 4px;
+            background-color: rgba(0,0,0,0.3); /* 가독성을 위한 아주 옅은 배경 */
         }
+        .chat-line:hover { background-color: rgba(255,255,255,0.05); }
+        .yt-avatar { width: 24px; height: 24px; border-radius: 50%; background-color: #ff69b4; color: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 12px; flex-shrink: 0; }
+        .msg-content { flex-grow: 1; line-height: 1.5; font-size: 13px; }
+        .yt-author { color: #aaaaaa; font-weight: bold; margin-right: 8px; }
+        .yt-author.gm { color: #ff69b4; background: #333; padding: 2px 4px; border-radius: 4px; font-size: 11px;}
+        .yt-text { color: #ffffff; word-break: break-all; }
 
-            .chat-line:hover {
-                background-color: rgba(255,255,255,0.05);
-            }
+        .sc-container { flex-shrink: 0; border-radius: 4px; margin-bottom: 8px; overflow: hidden; font-size: 13px; width: 100%; animation: fadeIn 0.3s ease-in; position: relative; }
+        .sc-header { padding: 8px 12px; display: flex; align-items: center; }
+        .sc-info { display: flex; flex-direction: column; }
+        .sc-info .yt-author { margin: 0; font-size: 13px; opacity: 0.9; }
+        .sc-info .amount { font-weight: bold; font-size: 14px; }
+        .sc-body { padding: 8px 12px; font-size: 14px; word-break: break-all;}
+        
+        .deleted-text { color: #ff0000; font-weight: bold; font-style: italic; text-shadow: 0 0 3px #ff0000; }
+        .censor-btn { display: none; background: #ff0000; color: white; border: none; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; position: absolute; right: 10px; top: 10px; }
 
-        .yt-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: #ff69b4;
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 12px;
-            flex-shrink: 0;
-        }
-
-        .msg-content {
-            flex-grow: 1;
-            line-height: 1.5;
-            font-size: 13px;
-        }
-
-        .yt-author {
-            color: #aaaaaa;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-            .yt-author.gm {
-                color: #ff69b4;
-                background: #333;
-                padding: 2px 4px;
-                border-radius: 4px;
-                font-size: 11px;
-            }
-
-        .yt-text {
-            color: #ffffff;
-            word-break: break-all;
-        }
-
-        .chat-emoticon {
-            max-width: 120px;
-            height: auto;
-            display: block;
-            margin-top: 5px;
-            background: transparent;
-        }
-
-        .sc-container {
-            flex-shrink: 0;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            overflow: hidden;
-            font-size: 13px;
-            width: 100%;
-            animation: fadeIn 0.3s ease-in;
-            position: relative;
-        }
-
-        .sc-header {
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-        }
-
-        .sc-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-            .sc-info .yt-author {
-                margin: 0;
-                font-size: 13px;
-                opacity: 0.9;
-            }
-
-            .sc-info .amount {
-                font-weight: bold;
-                font-size: 14px;
-            }
-
-        .sc-body {
-            padding: 8px 12px;
-            font-size: 14px;
-            word-break: break-all;
-        }
-
-        .deleted-text {
-            color: #ff0000;
-            font-weight: bold;
-            font-style: italic;
-            text-shadow: 0 0 3px #ff0000;
-        }
-
-        .censor-btn {
-            display: none;
-            background: #ff0000;
-            color: white;
-            border: none;
-            padding: 2px 6px;
-            font-size: 10px;
-            cursor: pointer;
-            border-radius: 3px;
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-
+        /* 🚨 [업데이트] 하단 입력창 영역도 반투명하게 처리 */
         #input-area {
             flex-shrink: 0;
-            background-color: #000;
+            background-color: rgba(0, 0, 0, 0.7); /* 반투명 검은색 */
             padding: 10px;
             border-top: 1px solid #333;
             display: flex;
             flex-direction: column;
             gap: 8px;
             position: relative;
+            z-index: 5;
         }
+        
+        #emo-panel { display: none; background-color: #1a1a1a; border: 1px solid #ff1493; padding: 10px; border-radius: 8px; position: absolute; bottom: 100%; left: 10px; width: 200px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; z-index: 10;}
+        .emo-btn { width: 100%; aspect-ratio: 1; cursor: pointer; border: 1px solid #444; border-radius: 4px; background-color: #222; object-fit: contain; }
+        .emo-btn:hover { border-color: #ff69b4; background-color: #333; }
 
-        #emo-panel {
-            display: none;
-            background-color: #1a1a1a;
-            border: 1px solid #ff1493;
-            padding: 10px;
-            border-radius: 8px;
-            position: absolute;
-            bottom: 100%;
-            left: 10px;
-            width: 200px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            margin-bottom: 10px;
-            z-index: 10;
-        }
+        #sc-panel { display: none; background-color: #1a1a1a; border: 1px solid #ff1493; padding: 10px; border-radius: 8px; flex-direction: column; gap: 8px; margin-bottom: 5px;}
+        .sc-title { font-size: 12px; color: #ff69b4; font-weight: bold; }
+        .sc-input-group { display: flex; gap: 5px; }
+        #scAmount { width: 80px; padding: 8px; background: #000; border: 1px solid #555; color: white; border-radius: 4px; outline: none;}
+        #scTextInput { flex-grow: 1; padding: 8px; background: #000; border: 1px solid #555; color: white; border-radius: 4px; outline: none;}
+        #scAmount:focus, #scTextInput:focus { border-color: #ff1493; }
+        .sc-btns { display: flex; gap: 5px; }
+        .sc-btns button { flex: 1; padding: 8px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-cancel { background: #444; color: white; }
+        .btn-cancel:hover { background: #555; }
+        .btn-shoot { background: #ff1493; color: white; }
+        .btn-shoot:hover { background: #e0007c; }
 
-        .emo-btn {
-            width: 100%;
-            aspect-ratio: 1;
-            cursor: pointer;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background-color: #222;
-            object-fit: contain;
-        }
+        .input-row { display: flex; gap: 5px; align-items: center; }
+        #currentNickname { width: 70px; padding: 8px 5px; background: #111; border: 1px solid #ff69b4; color: #ff69b4; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; }
+        /* 입력란도 투명도 처리 */
+        #customInput { flex-grow: 1; padding: 10px; background-color: rgba(34, 34, 34, 0.7); border: 1px solid #555; color: white; border-radius: 20px; font-size: 13px; outline: none; }
+        #customInput:focus { border-color: #ff69b4; }
+        #customInput:disabled, #scTextInput:disabled, #scAmount:disabled { background-color: #111; cursor: not-allowed; opacity: 0.6; }
+        
+        .sc-toggle-btn, .emo-toggle-btn { background: transparent; color: #ff69b4; font-weight: bold; font-size: 18px; border: none; cursor: pointer; padding: 0 5px; }
+        .send-btn { background: transparent; color: #ff69b4; border: none; font-weight: bold; padding: 0 10px; cursor: pointer; font-size: 14px; }
+        .send-btn:disabled, .sc-toggle-btn:disabled, .emo-toggle-btn:disabled { color: #555; cursor: not-allowed; }
 
-            .emo-btn:hover {
-                border-color: #ff69b4;
-                background-color: #333;
-            }
-
-        #sc-panel {
-            display: none;
-            background-color: #1a1a1a;
-            border: 1px solid #ff1493;
-            padding: 10px;
-            border-radius: 8px;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-
-        .sc-title {
-            font-size: 12px;
-            color: #ff69b4;
-            font-weight: bold;
-        }
-
-        .sc-input-group {
-            display: flex;
-            gap: 5px;
-        }
-
-        #scAmount {
-            width: 80px;
-            padding: 8px;
-            background: #000;
-            border: 1px solid #555;
-            color: white;
-            border-radius: 4px;
-            outline: none;
-        }
-
-        #scTextInput {
-            flex-grow: 1;
-            padding: 8px;
-            background: #000;
-            border: 1px solid #555;
-            color: white;
-            border-radius: 4px;
-            outline: none;
-        }
-
-            #scAmount:focus, #scTextInput:focus {
-                border-color: #ff1493;
-            }
-
-        .sc-btns {
-            display: flex;
-            gap: 5px;
-        }
-
-            .sc-btns button {
-                flex: 1;
-                padding: 8px;
-                font-weight: bold;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-
-        .btn-cancel {
-            background: #444;
-            color: white;
-        }
-
-            .btn-cancel:hover {
-                background: #555;
-            }
-
-        .btn-shoot {
-            background: #ff1493;
-            color: white;
-        }
-
-            .btn-shoot:hover {
-                background: #e0007c;
-            }
-
-        .input-row {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
-        #currentNickname {
-            width: 70px;
-            padding: 8px 5px;
-            background: #111;
-            border: 1px solid #ff69b4;
-            color: #ff69b4;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        #customInput {
-            flex-grow: 1;
-            padding: 10px;
-            background-color: #222;
-            border: 1px solid #555;
-            color: white;
-            border-radius: 20px;
-            font-size: 13px;
-            outline: none;
-        }
-
-            #customInput:focus {
-                border-color: #ff69b4;
-            }
-
-            #customInput:disabled, #scTextInput:disabled, #scAmount:disabled {
-                background-color: #111;
-                cursor: not-allowed;
-                opacity: 0.6;
-            }
-
-        .sc-toggle-btn, .emo-toggle-btn {
-            background: transparent;
-            color: #ff69b4;
-            font-weight: bold;
-            font-size: 18px;
-            border: none;
-            cursor: pointer;
-            padding: 0 5px;
-        }
-
-        .send-btn {
-            background: transparent;
-            color: #ff69b4;
-            border: none;
-            font-weight: bold;
-            padding: 0 10px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-            .send-btn:disabled, .sc-toggle-btn:disabled, .emo-toggle-btn:disabled {
-                color: #555;
-                cursor: not-allowed;
-            }
-
-        #gm-controls {
-            display: none;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .gm-btn {
-            background: #333;
-            color: white;
-            border: 1px solid #ff69b4;
-            font-size: 11px;
-            padding: 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            flex: 1;
-        }
-
-            .gm-btn:hover {
-                background: #ff1493;
-            }
-
-        #gm-parts {
-            display: none;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 3px;
-        }
+        #gm-controls { display: none; gap: 5px; margin-top: 5px; }
+        .gm-btn { background: #333; color: white; border: 1px solid #ff69b4; font-size: 11px; padding: 5px; border-radius: 4px; cursor: pointer; flex: 1; }
+        .gm-btn:hover { background: #ff1493; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
     </style>
 </head>
 <body>
