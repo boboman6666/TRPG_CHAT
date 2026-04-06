@@ -158,7 +158,7 @@
 
     <div id="login-screen">
         <img id="login-logo" src="login_image.png" alt="" onerror="this.style.display='none'">
-        <div class="login-title">SYSTEM_CONNECT</div>
+        <div class="login-title">LOGIN</div>
 
         <div class="login-box">
             <label>▶ 플레이어 모드</label>
@@ -167,8 +167,8 @@
         </div>
         <div style="width:100%; height:1px; background:#333; margin: 10px 0;"></div>
         <div class="login-box">
-            <label>▶ 관리자(GM) 모드</label>
-            <input type="text" id="gmName" class="login-input" placeholder="GM 닉네임 (예: 시스템, 신)">
+            <label>▶ GM 모드</label>
+            <input type="text" id="gmName" class="login-input" placeholder="닉네임 작성란">
             <input type="password" id="gmPassword" class="login-input" placeholder="비밀번호 입력">
             <button class="login-btn gm" onclick="login('gm')">관리자 권한 실행</button>
         </div>
@@ -182,7 +182,7 @@
             <div id="emo-panel" style="display: none;"></div>
 
             <div id="sc-panel">
-                <div class="sc-title">💎 슈퍼챗 후원하기</div>
+                <div class="sc-title">슈퍼챗 후원하기</div>
                 <div class="sc-input-group">
                     <input type="number" id="scAmount" min="1000" max="500000" step="1000" value="5000" title="금액(원)">
                     <input type="text" id="scTextInput" placeholder="여기에 슈퍼챗 메시지를 입력하세요..." onkeypress="handleScKeyPress(event)">
@@ -212,7 +212,7 @@
             <div id="gm-controls" class="input-row">
                 <button id="toggleAutoBtn" class="gm-btn" onclick="toggleAutoChat()">자동채팅 켜기</button>
                 <button id="toggleStreamBtn" class="gm-btn" onclick="toggleStream()" style="background-color: #d32f2f; border-color: #d32f2f;">🔴 방송 끄기</button>
-                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;">🔥 초기화</button>
+                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;">초기화</button>
             </div>
         </div>
     </div>
@@ -264,7 +264,7 @@
             } else if (mode === 'gm') {
                 const pw = document.getElementById('gmPassword').value;
                 const name = document.getElementById('gmName').value.trim() || 'GM_MASTER';
-                if (pw !== "1234") return alert('비밀번호가 틀렸습니다.');
+                if (pw !== "2273") return alert('비밀번호가 틀렸습니다.');
                 nicknameInput.value = name;
                 currentUserMode = 'gm';
                 document.getElementById('gm-controls').style.display = 'flex';
