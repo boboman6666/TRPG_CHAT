@@ -5,78 +5,480 @@
     <title>TRPG 실시간 채팅</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #0f0f0f; color: #ffffff; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; background-color: #000; }
-        .login-title { color: #ff1493; font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: 2px; }
-        .login-box { width: 100%; margin-bottom: 20px; }
-        .login-box label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; }
-        .login-input { width: 100%; padding: 10px; box-sizing: border-box; background: #222; border: 1px solid #ff69b4; color: white; border-radius: 4px; margin-bottom: 10px; }
-        .login-btn { width: 100%; padding: 12px; background: #ff69b4; color: black; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .login-btn.gm { background: #444; color: #ff69b4; border: 1px solid #ff69b4; }
-        .login-btn:hover { background: #ff1493; color: white; }
-        #chat-screen { display: none; flex-direction: column; height: 100vh; }
-        
-        #chat-header { padding: 10px 15px; background-color: #000; border-bottom: 1px solid #333; font-weight: bold; color: #ff69b4; font-size: 14px; flex-shrink: 0; }
-        
-        /* 🚨 [수정됨] 스크롤 부드럽게 이동하는 속성 추가 (새로고침 시 자동 이동 포함) */
-        #chat-container { flex-grow: 1; padding: 15px 10px; overflow-y: auto; display: flex; flex-direction: column; scroll-behavior: smooth; }
-        
-        /* 🚨 [수정됨] 찌그러짐 방지 속성 유지 */
-        .chat-line { flex-shrink: 0; display: flex; align-items: flex-start; margin-bottom: 6px; padding: 4px 8px; animation: fadeIn 0.2s ease-in; position: relative; border-radius: 4px; }
-        .chat-line:hover { background-color: rgba(255,255,255,0.05); }
-        .yt-avatar { width: 24px; height: 24px; border-radius: 50%; background-color: #ff69b4; color: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 12px; flex-shrink: 0; }
-        .msg-content { flex-grow: 1; line-height: 1.5; font-size: 13px; }
-        .yt-author { color: #aaaaaa; font-weight: bold; margin-right: 8px; }
-        .yt-author.gm { color: #ff69b4; background: #333; padding: 2px 4px; border-radius: 4px; font-size: 11px;}
-        .yt-text { color: #ffffff; word-break: break-all; }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #0f0f0f;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        /* 🚨 [수정됨] 슈퍼챗 찌그러짐 방지 유지 */
-        .sc-container { flex-shrink: 0; border-radius: 4px; margin-bottom: 8px; overflow: hidden; font-size: 13px; width: 100%; animation: fadeIn 0.3s ease-in; position: relative; }
-        .sc-header { padding: 8px 12px; display: flex; align-items: center; }
-        .sc-info { display: flex; flex-direction: column; }
-        .sc-info .yt-author { margin: 0; font-size: 13px; opacity: 0.9; }
-        .sc-info .amount { font-weight: bold; font-size: 14px; }
-        .sc-body { padding: 8px 12px; font-size: 14px; word-break: break-all;}
-        
-        .deleted-text { color: #ff0000; font-weight: bold; font-style: italic; text-shadow: 0 0 3px #ff0000; }
-        .censor-btn { display: none; background: #ff0000; color: white; border: none; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; position: absolute; right: 10px; top: 10px; }
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            background-color: #000;
+        }
 
-        #input-area { flex-shrink: 0; background-color: #000; padding: 10px; border-top: 1px solid #333; display: flex; flex-direction: column; gap: 8px; }
-        #sc-panel { display: none; background-color: #1a1a1a; border: 1px solid #ff1493; padding: 10px; border-radius: 8px; flex-direction: column; gap: 8px; margin-bottom: 5px;}
-        .sc-title { font-size: 12px; color: #ff69b4; font-weight: bold; }
-        .sc-input-group { display: flex; gap: 5px; }
-        #scAmount { width: 80px; padding: 8px; background: #000; border: 1px solid #555; color: white; border-radius: 4px; outline: none;}
-        #scTextInput { flex-grow: 1; padding: 8px; background: #000; border: 1px solid #555; color: white; border-radius: 4px; outline: none;}
-        #scAmount:focus, #scTextInput:focus { border-color: #ff1493; }
-        .sc-btns { display: flex; gap: 5px; }
-        .sc-btns button { flex: 1; padding: 8px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-cancel { background: #444; color: white; }
-        .btn-cancel:hover { background: #555; }
-        .btn-shoot { background: #ff1493; color: white; }
-        .btn-shoot:hover { background: #e0007c; }
+        #login-logo {
+            max-width: 600px;
+            max-height: 300px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
 
-        .input-row { display: flex; gap: 5px; align-items: center; }
-        #currentNickname { width: 70px; padding: 8px 5px; background: #111; border: 1px solid #ff69b4; color: #ff69b4; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; }
-        #customInput { flex-grow: 1; padding: 10px; background-color: #222; border: 1px solid #555; color: white; border-radius: 20px; font-size: 13px; outline: none; }
-        #customInput:focus { border-color: #ff69b4; }
-        #customInput:disabled, #scTextInput:disabled, #scAmount:disabled { background-color: #111; cursor: not-allowed; opacity: 0.6; }
-        
-        .sc-toggle-btn { background: transparent; color: #ff69b4; font-weight: bold; font-size: 18px; border: none; cursor: pointer; padding: 0 5px; }
-        .send-btn { background: transparent; color: #ff69b4; border: none; font-weight: bold; padding: 0 10px; cursor: pointer; font-size: 14px; }
-        .send-btn:disabled, .sc-toggle-btn:disabled { color: #555; cursor: not-allowed; }
+        .login-title {
+            color: #ff1493;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
 
-        #gm-controls { display: none; gap: 5px; margin-top: 5px; }
-        .gm-btn { background: #333; color: white; border: 1px solid #ff69b4; font-size: 11px; padding: 5px; border-radius: 4px; cursor: pointer; flex: 1; }
-        .gm-btn:hover { background: #ff1493; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .login-box {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+            .login-box label {
+                display: block;
+                font-size: 12px;
+                color: #aaa;
+                margin-bottom: 5px;
+            }
+
+        .login-input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background: #222;
+            border: 1px solid #ff69b4;
+            color: white;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff69b4;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .login-btn.gm {
+                background: #444;
+                color: #ff69b4;
+                border: 1px solid #ff69b4;
+            }
+
+            .login-btn:hover {
+                background: #ff1493;
+                color: white;
+            }
+
+        #chat-screen {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #chat-header {
+            padding: 10px 15px;
+            background-color: #000;
+            border-bottom: 1px solid #333;
+            font-weight: bold;
+            color: #ff69b4;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        #chat-container {
+            flex-grow: 1;
+            padding: 15px 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            scroll-behavior: smooth;
+        }
+
+        .chat-line {
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            padding: 4px 8px;
+            animation: fadeIn 0.2s ease-in;
+            position: relative;
+            border-radius: 4px;
+        }
+
+            .chat-line:hover {
+                background-color: rgba(255,255,255,0.05);
+            }
+
+        .yt-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ff69b4;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .msg-content {
+            flex-grow: 1;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        .yt-author {
+            color: #aaaaaa;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+            .yt-author.gm {
+                color: #ff69b4;
+                background: #333;
+                padding: 2px 4px;
+                border-radius: 4px;
+                font-size: 11px;
+            }
+
+        .yt-text {
+            color: #ffffff;
+            word-break: break-all;
+        }
+
+        .chat-emoticon {
+            max-width: 120px;
+            height: auto;
+            display: block;
+            margin-top: 5px;
+            background: transparent;
+        }
+
+        .sc-container {
+            flex-shrink: 0;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            font-size: 13px;
+            width: 100%;
+            animation: fadeIn 0.3s ease-in;
+            position: relative;
+        }
+
+        .sc-header {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sc-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .sc-info .yt-author {
+                margin: 0;
+                font-size: 13px;
+                opacity: 0.9;
+            }
+
+            .sc-info .amount {
+                font-weight: bold;
+                font-size: 14px;
+            }
+
+        .sc-body {
+            padding: 8px 12px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .deleted-text {
+            color: #ff0000;
+            font-weight: bold;
+            font-style: italic;
+            text-shadow: 0 0 3px #ff0000;
+        }
+
+        .censor-btn {
+            display: none;
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        #input-area {
+            flex-shrink: 0;
+            background-color: #000;
+            padding: 10px;
+            border-top: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        #emo-panel {
+            display: none;
+            background-color: #1a1a1a;
+            border: 1px solid #ff1493;
+            padding: 10px;
+            border-radius: 8px;
+            position: absolute;
+            bottom: 100%;
+            left: 10px;
+            width: 200px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+            z-index: 10;
+        }
+
+        .emo-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            cursor: pointer;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #222;
+            object-fit: contain;
+        }
+
+            .emo-btn:hover {
+                border-color: #ff69b4;
+                background-color: #333;
+            }
+
+        #sc-panel {
+            display: none;
+            background-color: #1a1a1a;
+            border: 1px solid #ff1493;
+            padding: 10px;
+            border-radius: 8px;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .sc-title {
+            font-size: 12px;
+            color: #ff69b4;
+            font-weight: bold;
+        }
+
+        .sc-input-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        #scAmount {
+            width: 80px;
+            padding: 8px;
+            background: #000;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        #scTextInput {
+            flex-grow: 1;
+            padding: 8px;
+            background: #000;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+            outline: none;
+        }
+
+            #scAmount:focus, #scTextInput:focus {
+                border-color: #ff1493;
+            }
+
+        .sc-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+            .sc-btns button {
+                flex: 1;
+                padding: 8px;
+                font-weight: bold;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+        .btn-cancel {
+            background: #444;
+            color: white;
+        }
+
+            .btn-cancel:hover {
+                background: #555;
+            }
+
+        .btn-shoot {
+            background: #ff1493;
+            color: white;
+        }
+
+            .btn-shoot:hover {
+                background: #e0007c;
+            }
+
+        .input-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #currentNickname {
+            width: 70px;
+            padding: 8px 5px;
+            background: #111;
+            border: 1px solid #ff69b4;
+            color: #ff69b4;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #customInput {
+            flex-grow: 1;
+            padding: 10px;
+            background-color: #222;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+        }
+
+            #customInput:focus {
+                border-color: #ff69b4;
+            }
+
+            #customInput:disabled, #scTextInput:disabled, #scAmount:disabled {
+                background-color: #111;
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+        .sc-toggle-btn, .emo-toggle-btn {
+            background: transparent;
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .send-btn {
+            background: transparent;
+            color: #ff69b4;
+            border: none;
+            font-weight: bold;
+            padding: 0 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+            .send-btn:disabled, .sc-toggle-btn:disabled, .emo-toggle-btn:disabled {
+                color: #555;
+                cursor: not-allowed;
+            }
+
+        #gm-controls {
+            display: none;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .gm-btn {
+            background: #333;
+            color: white;
+            border: 1px solid #ff69b4;
+            font-size: 11px;
+            padding: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+            .gm-btn:hover {
+                background: #ff1493;
+            }
+
+        #gm-parts {
+            display: none;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
+        <img id="login-logo" src="login_image.png" alt="" onerror="this.style.display='none'">
         <div class="login-title">SYSTEM_CONNECT</div>
+
         <div class="login-box">
             <label>▶ 플레이어 모드</label>
             <input type="text" id="playerName" class="login-input" placeholder="초기 닉네임 입력">
@@ -95,6 +497,9 @@
         <div id="chat-header">🔴 라이브 스트리밍 중...</div>
         <div id="chat-container"></div>
         <div id="input-area">
+
+            <div id="emo-panel" style="display: none;"></div>
+
             <div id="sc-panel">
                 <div class="sc-title"> 슈퍼챗 후원하기</div>
                 <div class="sc-input-group">
@@ -110,14 +515,23 @@
             <div class="input-row">
                 <input type="text" id="currentNickname" title="닉네임 변경">
                 <input type="text" id="customInput" placeholder="일반 채팅 메시지..." onkeypress="handleKeyPress(event)">
+                <button id="emoToggleBtn" class="emo-toggle-btn" onclick="toggleEmoPanel()" title="이모티콘">☺</button>
                 <button id="scToggleBtn" class="sc-toggle-btn" onclick="toggleScPanel()" title="슈퍼챗">₩</button>
-                <button id="sendBtn" class="send-btn" onclick="sendNormalMessage(false)">전송</button>
+                <button id="sendBtn" class="send-btn" onclick="sendNormalMessage()">전송</button>
             </div>
-            
+
+            <div id="gm-parts" class="input-row">
+                <button id="btn-Normal" class="gm-btn" style="background-color: #ff1493; color: white;" onclick="changePart('Normal')">Normal</button>
+                <button id="btn-HO1" class="gm-btn" onclick="changePart('HO1')">HO1 파트</button>
+                <button id="btn-HO2" class="gm-btn" onclick="changePart('HO2')">HO2 파트</button>
+                <button id="btn-HO3" class="gm-btn" onclick="changePart('HO3')">HO3 파트</button>
+                <button id="btn-HO4" class="gm-btn" onclick="changePart('HO4')">HO4 파트</button>
+            </div>
+
             <div id="gm-controls" class="input-row">
                 <button id="toggleAutoBtn" class="gm-btn" onclick="toggleAutoChat()">자동채팅 켜기</button>
                 <button id="toggleStreamBtn" class="gm-btn" onclick="toggleStream()" style="background-color: #d32f2f; border-color: #d32f2f;">🔴 방송 끄기</button>
-                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;"> 초기화</button>
+                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;">🔥 초기화</button>
             </div>
         </div>
     </div>
@@ -133,14 +547,31 @@
             appId: "1:793472714544:web:0392933373c87b3720aaf5",
             measurementId: "G-MHQSLW0S7B"
         };
-        
+
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         let currentUserMode = "";
-        let cooldownTimer = null;
-        let globalTimeLeft = 0; 
-        let isStreamLive = true; 
+        let isStreamLive = true;
+        const loginTime = Date.now();
+        const scAlarmSound = new Audio('alarm.mp3');
+
+        const emoticonList = [
+            "emo1.png", "emo2.png", "emo3.png"
+        ];
+
+        function initEmoticons() {
+            const panel = document.getElementById('emo-panel');
+            panel.innerHTML = '';
+            emoticonList.forEach(emo => {
+                const img = document.createElement('img');
+                img.src = emo;
+                img.className = 'emo-btn';
+                img.onclick = () => sendEmoticon(emo);
+                panel.appendChild(img);
+            });
+        }
+        initEmoticons();
 
         function login(mode) {
             const nicknameInput = document.getElementById('currentNickname');
@@ -152,54 +583,47 @@
             } else if (mode === 'gm') {
                 const pw = document.getElementById('gmPassword').value;
                 const name = document.getElementById('gmName').value.trim() || 'GM_MASTER';
-                if (pw !== "1234") return alert('비밀번호가 틀렸습니다.'); 
+                if (pw !== "1234") return alert('비밀번호가 틀렸습니다.');
                 nicknameInput.value = name;
                 currentUserMode = 'gm';
                 document.getElementById('gm-controls').style.display = 'flex';
+                document.getElementById('gm-parts').style.display = 'flex';
             }
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
         }
 
-        // 🚨 [수정됨] 실시간 방송 상태(ON/OFF) 연동
         db.ref('settings/isLive').on('value', (snapshot) => {
             isStreamLive = snapshot.val();
-            if (isStreamLive === null) isStreamLive = true; // 초기엔 무조건 켜짐
+            if (isStreamLive === null) isStreamLive = true;
 
             const header = document.getElementById('chat-header');
             const inputs = ['customInput', 'scTextInput', 'scAmount'];
-            const btns = ['sendBtn', 'scToggleBtn'];
+            const btns = ['sendBtn', 'scToggleBtn', 'emoToggleBtn'];
             const shootBtn = document.querySelector('.btn-shoot');
             const streamBtn = document.getElementById('toggleStreamBtn');
 
             if (isStreamLive) {
-                // 방송 켜짐
                 header.innerHTML = '🔴 라이브 스트리밍 중...';
                 header.style.color = '#ff69b4';
-                if(streamBtn) { streamBtn.innerText = ' 방송 끄기'; streamBtn.style.backgroundColor = '#d32f2f'; streamBtn.style.borderColor = '#d32f2f'; }
-                
-                // 쿨다운(globalTimeLeft) 중이 아닐 때만 입력창을 다시 엽니다.
-                if (globalTimeLeft <= 0) {
-                    inputs.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = false; });
-                    btns.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = false; });
-                    if(shootBtn) shootBtn.disabled = false;
-                    document.getElementById('customInput').placeholder = "일반 채팅 메시지...";
-                }
+                if (streamBtn) { streamBtn.innerText = '🔴 방송 끄기'; streamBtn.style.backgroundColor = '#d32f2f'; streamBtn.style.borderColor = '#d32f2f'; }
+
+                inputs.forEach(id => { if (document.getElementById(id)) document.getElementById(id).disabled = false; });
+                btns.forEach(id => { if (document.getElementById(id)) document.getElementById(id).disabled = false; });
+                if (shootBtn) shootBtn.disabled = false;
+                document.getElementById('customInput').placeholder = "일반 채팅 메시지...";
             } else {
-                // 방송 꺼짐
                 header.innerHTML = '⚫ 방송이 종료되었습니다.';
                 header.style.color = '#aaaaaa';
-                if(streamBtn) { streamBtn.innerText = '🟢 방송 켜기'; streamBtn.style.backgroundColor = '#4CAF50'; streamBtn.style.borderColor = '#4CAF50'; }
-                
-                // 모두 잠금
-                inputs.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = true; });
-                btns.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = true; });
-                if(shootBtn) shootBtn.disabled = true;
+                if (streamBtn) { streamBtn.innerText = '🟢 방송 켜기'; streamBtn.style.backgroundColor = '#4CAF50'; streamBtn.style.borderColor = '#4CAF50'; }
+
+                inputs.forEach(id => { if (document.getElementById(id)) document.getElementById(id).disabled = true; });
+                btns.forEach(id => { if (document.getElementById(id)) document.getElementById(id).disabled = true; });
+                if (shootBtn) shootBtn.disabled = true;
                 document.getElementById('customInput').placeholder = "방송이 종료되어 채팅을 칠 수 없습니다.";
             }
         });
 
-        // 🚨 [수정됨] 방송 상태 토글 함수 (GM 전용)
         function toggleStream() {
             db.ref('settings/isLive').once('value').then((snapshot) => {
                 let currentLive = snapshot.val();
@@ -209,34 +633,31 @@
         }
 
         db.ref('messages').on('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                document.getElementById('chat-container').innerHTML = '';
-            }
+            if (!snapshot.exists()) document.getElementById('chat-container').innerHTML = '';
         });
 
-        // 🚨 [수정됨] 처음 접속/새로고침 시 최신 댓글로 확실하게 끌어내리는 로직 강화
         db.ref('messages').once('value').then(() => {
             setTimeout(() => {
                 const chatContainer = document.getElementById('chat-container');
-                if(chatContainer) {
-                    // 순간적으로 부드러운 스크롤을 끄고 맨 아래로 꽂아 넣습니다.
+                if (chatContainer) {
                     chatContainer.style.scrollBehavior = 'auto';
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-                    
                     requestAnimationFrame(() => {
                         chatContainer.scrollTop = chatContainer.scrollHeight;
-                        chatContainer.style.scrollBehavior = 'smooth'; // 다시 원상복구
+                        chatContainer.style.scrollBehavior = 'smooth';
                     });
                 }
-            }, 800); // 딜레이를 살짝 늘려서 데이터 로딩 후 확실하게 내려가게 설정
+            }, 800);
         });
 
         db.ref('messages').on('child_added', (snapshot) => {
             const data = snapshot.val();
-            // 🚨 [수정됨] 유령 차단 필터 (고장난 데이터 무시)
-            if (!data || typeof data.text === "undefined" || data.text.trim() === "") {
-                return; 
+            if (!data || typeof data.text === "undefined" || data.text.trim() === "") return;
+
+            if (data.isSuperchat && data.amount >= 50000 && data.timestamp > loginTime) {
+                scAlarmSound.play().catch(e => console.log("알람 재생 에러:", e));
             }
+
             displayMessage(snapshot.key, data.username || "익명", data.text, data.isSuperchat || false, data.amount || 0, data.censored || false);
         });
 
@@ -245,12 +666,12 @@
         });
 
         function getSuperchatColor(amount) {
-            if (amount < 5000) return { header: '#1565C0', body: '#1E88E5', text: '#ffffff' }; 
-            if (amount < 10000) return { header: '#00897B', body: '#00BFA5', text: '#000000' }; 
-            if (amount < 20000) return { header: '#F57F17', body: '#FFEB3B', text: '#000000' }; 
-            if (amount < 50000) return { header: '#E65100', body: '#FF9800', text: '#ffffff' }; 
-            if (amount < 100000) return { header: '#C2185B', body: '#E91E63', text: '#ffffff' }; 
-            return { header: '#B71C1C', body: '#E53935', text: '#ffffff' }; 
+            if (amount < 5000) return { header: '#1565C0', body: '#1E88E5', text: '#ffffff' };
+            if (amount < 10000) return { header: '#00897B', body: '#00BFA5', text: '#000000' };
+            if (amount < 20000) return { header: '#F57F17', body: '#FFEB3B', text: '#000000' };
+            if (amount < 50000) return { header: '#E65100', body: '#FF9800', text: '#ffffff' };
+            if (amount < 100000) return { header: '#C2185B', body: '#E91E63', text: '#ffffff' };
+            return { header: '#B71C1C', body: '#E53935', text: '#ffffff' };
         }
 
         function displayMessage(id, username, text, isSuperchat, amount, isCensored) {
@@ -258,32 +679,40 @@
                 const chatContainer = document.getElementById('chat-container');
                 const lineDiv = document.createElement('div');
                 const initial = username.charAt(0).toUpperCase();
-                const safeAmount = parseInt(amount) || 0; 
+                const safeAmount = parseInt(amount) || 0;
+
+                let parsedText = text;
+                if (!isCensored && text.startsWith("[EMOJI:") && text.endsWith("]")) {
+                    const emoFile = text.substring(7, text.length - 1);
+                    parsedText = `<img src="${emoFile}" class="chat-emoticon" onerror="this.src=''" alt="이모티콘">`;
+                } else if (isCensored) {
+                    parsedText = '<span class="deleted-text">[시스템에 의해 삭제된 데이터입니다]</span>';
+                }
 
                 if (isSuperchat) {
                     const colors = getSuperchatColor(safeAmount);
                     lineDiv.className = 'sc-container';
                     lineDiv.innerHTML = `
-                        <div class="sc-header" style="background-color: ${colors.header};">
-                            <div class="yt-avatar" style="background-color: #fff;">${initial}</div>
-                            <div class="sc-info">
-                                <div class="yt-author" style="color: ${colors.text};">${username}</div>
-                                <div class="amount" style="color: ${colors.text};">₩${safeAmount.toLocaleString()}</div>
+                            <div class="sc-header" style="background-color: ${colors.header};">
+                                <div class="yt-avatar" style="background-color: #fff;">${initial}</div>
+                                <div class="sc-info">
+                                    <div class="yt-author" style="color: ${colors.text};">${username}</div>
+                                    <div class="amount" style="color: ${colors.text};">₩${safeAmount.toLocaleString()}</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="sc-body" style="background-color: ${colors.body}; color: ${colors.text};">
-                            <span id="text-${id}">${isCensored ? '<span class="deleted-text">[시스템에 의해 삭제된 데이터입니다]</span>' : text}</span>
-                        </div>
-                    `;
+                            <div class="sc-body" style="background-color: ${colors.body}; color: ${colors.text};">
+                                <span id="text-${id}">${parsedText}</span>
+                            </div>
+                        `;
                 } else {
                     lineDiv.className = 'chat-line';
                     lineDiv.innerHTML = `
-                        <div class="yt-avatar">${initial}</div>
-                        <div class="msg-content">
-                            <span class="yt-author ${username.includes('GM') ? 'gm' : ''}">${username}</span>
-                            <span class="yt-text" id="text-${id}">${isCensored ? '<span class="deleted-text">[시스템에 의해 삭제된 데이터입니다]</span>' : text}</span>
-                        </div>
-                    `;
+                            <div class="yt-avatar">${initial}</div>
+                            <div class="msg-content">
+                                <span class="yt-author ${username.includes('GM') ? 'gm' : ''}">${username}</span>
+                                <span class="yt-text" id="text-${id}">${parsedText}</span>
+                            </div>
+                        `;
                 }
 
                 if (currentUserMode === 'gm' && !isCensored) {
@@ -300,45 +729,50 @@
 
                 chatContainer.appendChild(lineDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-            } catch (error) {
-                console.error("메시지 출력 에러:", error);
-            }
+            } catch (error) { console.error("메시지 출력 에러:", error); }
+        }
+
+        function toggleEmoPanel() {
+            if (!isStreamLive) return alert("현재 방송이 종료되었습니다.");
+            const emoPanel = document.getElementById('emo-panel');
+            const scPanel = document.getElementById('sc-panel');
+            scPanel.style.display = 'none';
+            emoPanel.style.display = emoPanel.style.display === 'grid' ? 'none' : 'grid';
         }
 
         function toggleScPanel() {
             if (!isStreamLive) return alert("현재 방송이 종료되었습니다.");
-            
-            const panel = document.getElementById('sc-panel');
-            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-            if (panel.style.display === 'flex') document.getElementById('scTextInput').focus();
+            const emoPanel = document.getElementById('emo-panel');
+            const scPanel = document.getElementById('sc-panel');
+            emoPanel.style.display = 'none';
+            scPanel.style.display = scPanel.style.display === 'flex' ? 'none' : 'flex';
+            if (scPanel.style.display === 'flex') document.getElementById('scTextInput').focus();
         }
 
-        function sendNormalMessage(isAuto = false) {
-            try {
-                if (!isAuto && !isStreamLive) return alert("현재 방송이 종료되었습니다.");
+        function sendEmoticon(emoFileName) {
+            if (!isStreamLive) return;
+            let username = document.getElementById('currentNickname').value.trim() || "익명";
 
-                let text = ""; let username = "";
-                if (isAuto) {
-                    const viewers = ["무해", "형님", "츠네", "참치", "눈사람", "대학교 7학년", "일짱", "살육머신", "초밥먹고싶다", "잼민TV"];
-                    
-                    // 🚨 [수정됨] 문법 오류(Syntax Error)를 일으켰던 빠진 대괄호(])와 세미콜론(;)을 완벽하게 수정했습니다!
-                    const messages = ["오 분위기 좋은데?", "ㅋㅋ 대박", "와 얼굴이 눈부시다.", "눈누난나", "일짱은 나다.", "일빠", "오빠 사랑해요~~", "노잼", "유잼!"];
-                    
-                    username = viewers[Math.floor(Math.random() * viewers.length)];
-                    text = messages[Math.floor(Math.random() * messages.length)];
-                } else {
-                    text = document.getElementById('customInput').value.trim();
-                    username = document.getElementById('currentNickname').value.trim() || "익명";
-                    if (!text) return;
-                    document.getElementById('customInput').value = '';
-                }
+            db.ref('messages').push({
+                username: username, text: `[EMOJI:${emoFileName}]`, isSuperchat: false,
+                amount: 0, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            document.getElementById('emo-panel').style.display = 'none';
+        }
+
+        function sendNormalMessage() {
+            try {
+                if (!isStreamLive) return alert("현재 방송이 종료되었습니다.");
+                let text = document.getElementById('customInput').value.trim();
+                let username = document.getElementById('currentNickname').value.trim() || "익명";
+
+                if (!text) return;
+                document.getElementById('customInput').value = '';
 
                 db.ref('messages').push({
-                    username: username, text: text, isSuperchat: false, 
+                    username: username, text: text, isSuperchat: false,
                     amount: 0, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
-
-                if (!isAuto && currentUserMode === 'player') startCooldown();
             } catch (error) { console.error("일반 채팅 에러:", error); }
         }
 
@@ -356,57 +790,21 @@
                 document.getElementById('sc-panel').style.display = 'none';
 
                 db.ref('messages').push({
-                    username: username, text: text, isSuperchat: true, 
+                    username: username, text: text, isSuperchat: true,
                     amount: amount, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
-
-                if (currentUserMode === 'player') startCooldown();
             } catch (error) { console.error("슈퍼챗 에러:", error); }
         }
 
         function handleKeyPress(event) {
-            if (event.key === 'Enter' && !document.getElementById('sendBtn').disabled) sendNormalMessage(false);
+            if (event.key === 'Enter' && !document.getElementById('sendBtn').disabled) sendNormalMessage();
         }
         function handleScKeyPress(event) {
             if (event.key === 'Enter' && !document.querySelector('.btn-shoot').disabled) sendSuperchat();
         }
 
         function clearChat() {
-            if (confirm("경고: 모든 채팅 기록을 완전히 삭제하시겠습니까? (새로운 탁을 시작할 때 누르세요)")) {
-                db.ref('messages').remove();
-            }
-        }
-
-        function startCooldown() {
-            try {
-                const inputs = ['customInput', 'scTextInput', 'scAmount'];
-                const btns = ['sendBtn', 'scToggleBtn'];
-                const shootBtn = document.querySelector('.btn-shoot');
-                
-                globalTimeLeft = 30; 
-
-                inputs.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = true; });
-                btns.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = true; });
-                if(shootBtn) shootBtn.disabled = true;
-
-                cooldownTimer = setInterval(() => {
-                    document.getElementById('customInput').placeholder = `데이터 과부하... ${globalTimeLeft}초 후 입력 가능`;
-                    globalTimeLeft--;
-                    
-                    if (globalTimeLeft < 0) {
-                        clearInterval(cooldownTimer);
-                        
-                        if (isStreamLive) {
-                            inputs.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = false; });
-                            btns.forEach(id => { if(document.getElementById(id)) document.getElementById(id).disabled = false; });
-                            if(shootBtn) shootBtn.disabled = false;
-                            document.getElementById('customInput').placeholder = "일반 채팅 메시지...";
-                        } else {
-                            document.getElementById('customInput').placeholder = "방송이 종료되어 채팅을 칠 수 없습니다.";
-                        }
-                    }
-                }, 1000);
-            } catch (error) { console.error("쿨다운 에러:", error); }
+            if (confirm("경고: 모든 채팅 기록을 완전히 삭제하시겠습니까?")) db.ref('messages').remove();
         }
 
         function triggerGlitchEffect(id) {
@@ -420,19 +818,105 @@
                     textSpan.innerHTML = '<span class="deleted-text">[시스템에 의해 삭제된 데이터입니다]</span>';
                 } else {
                     let randomStr = "";
-                    for(let i=0; i<10; i++) randomStr += chars[Math.floor(Math.random() * chars.length)];
+                    for (let i = 0; i < 10; i++) randomStr += chars[Math.floor(Math.random() * chars.length)];
                     textSpan.innerText = randomStr;
                 }
             }, 50);
         }
 
-        let autoChatInterval; let isAutoChatOn = false;
-        function toggleAutoChat() {
+        /* =========================================
+           🚨 [업데이트] Normal + HO 시트 혼합 시스템
+           ========================================= */
+        let currentPart = 'Normal'; // 처음에는 Normal이 기본값
+        let excelChatList = [];
+        let autoChatInterval;
+        let isAutoChatOn = false;
+
+        // 파트 변경 버튼을 눌렀을 때 실행되는 함수
+        async function changePart(part) {
+            currentPart = part;
+
+            // 버튼 색상 업데이트 (선택된 파트는 핑크색)
+            ['Normal', 'HO1', 'HO2', 'HO3', 'HO4'].forEach(p => {
+                const btn = document.getElementById(`btn-${p}`);
+                if (btn) {
+                    btn.style.backgroundColor = (p === part) ? '#ff1493' : '#333';
+                    btn.style.color = '#fff';
+                }
+            });
+
+            // 자동채팅이 켜져있으면 즉시 바뀐 시트로 데이터 로드
+            if (isAutoChatOn) {
+                await loadExcelAutoChat(currentPart);
+            }
+        }
+
+        // 엑셀 파일(autochat.xlsx)에서 Normal과 선택된 HO 데이터를 섞어서 가져옵니다.
+        async function loadExcelAutoChat(selectedPart) {
+            try {
+                const response = await fetch('autochat.xlsx');
+                if (!response.ok) throw new Error("엑셀 파일 없음");
+
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+                excelChatList = []; // 배열 초기화
+
+                // 1️⃣ 무조건 'Normal' 시트의 데이터를 읽어서 담습니다.
+                const normalSheet = workbook.Sheets['Normal'];
+                if (normalSheet) {
+                    const rows = XLSX.utils.sheet_to_json(normalSheet, { header: 1 });
+                    for (let i = 1; i < rows.length; i++) { // 1번째 줄(헤더) 건너뛰고 2번째 줄부터
+                        const row = rows[i];
+                        if (row && row.length >= 2 && row[0] && row[1]) {
+                            excelChatList.push({ u: row[0].toString().trim(), t: row[1].toString().trim() });
+                        }
+                    }
+                }
+
+                // 2️⃣ 선택된 파트가 'Normal'이 아니라면(HO 버튼을 눌렀다면), 해당 HO 시트도 읽어서 추가합니다.
+                if (selectedPart !== 'Normal') {
+                    const partSheet = workbook.Sheets[selectedPart];
+                    if (partSheet) {
+                        const rows = XLSX.utils.sheet_to_json(partSheet, { header: 1 });
+                        for (let i = 1; i < rows.length; i++) {
+                            const row = rows[i];
+                            if (row && row.length >= 2 && row[0] && row[1]) {
+                                excelChatList.push({ u: row[0].toString().trim(), t: row[1].toString().trim() });
+                            }
+                        }
+                    } else {
+                        console.log(`${selectedPart} 시트를 찾을 수 없습니다.`);
+                    }
+                }
+
+                if (excelChatList.length === 0) console.log(`데이터가 없습니다.`);
+            } catch (error) {
+                console.log("autochat.xlsx 파일이 없습니다.", error);
+                excelChatList = [{ u: "시스템", t: "autochat.xlsx 파일이나 시트를 찾을 수 없습니다." }];
+            }
+        }
+
+        function sendAutoChatFromExcel() {
+            if (!isStreamLive || excelChatList.length === 0) return;
+            // 합쳐진 전체 리스트(Normal + HO)에서 무작위로 하나 뽑아서 전송
+            const randomPick = excelChatList[Math.floor(Math.random() * excelChatList.length)];
+
+            db.ref('messages').push({
+                username: randomPick.u, text: randomPick.t, isSuperchat: false,
+                amount: 0, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        async function toggleAutoChat() {
             const btn = document.getElementById('toggleAutoBtn');
             isAutoChatOn = !isAutoChatOn;
+
             if (isAutoChatOn) {
                 btn.textContent = "자동채팅 끄기"; btn.style.backgroundColor = "#ff0000";
-                autoChatInterval = setInterval(() => sendNormalMessage(true), Math.random() * 2000 + 3000); 
+                // 자동채팅을 켤 때마다 최신 설정으로 엑셀 데이터를 로드합니다.
+                await loadExcelAutoChat(currentPart);
+                autoChatInterval = setInterval(sendAutoChatFromExcel, Math.random() * 2000 + 3000);
             } else {
                 btn.textContent = "자동채팅 켜기"; btn.style.backgroundColor = "#333";
                 clearInterval(autoChatInterval);
@@ -441,4 +925,3 @@
     </script>
 </body>
 </html>
-
