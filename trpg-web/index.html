@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<style>
+    <style>
         /* 🚨 [업데이트] body 배경을 solid 검은색(#0f0f0f)에서 이미지로 변경 */
         body {
             font-family: 'Malgun Gothic', sans-serif;
@@ -90,6 +90,9 @@
         .yt-author.gm { color: #ff69b4; background: #333; padding: 2px 4px; border-radius: 4px; font-size: 11px;}
         .yt-text { color: #ffffff; word-break: break-all; }
 
+        /* 🚨 [업데이트] 이모티콘 80x80 강제 고정 및 찌그러짐 방지(object-fit) */
+        .chat-emoticon { width: 80px; height: 80px; object-fit: contain; display: block; margin-top: 5px; background: transparent; }
+
         .sc-container { flex-shrink: 0; border-radius: 4px; margin-bottom: 8px; overflow: hidden; font-size: 13px; width: 100%; animation: fadeIn 0.3s ease-in; position: relative; }
         .sc-header { padding: 8px 12px; display: flex; align-items: center; }
         .sc-info { display: flex; flex-direction: column; }
@@ -144,6 +147,9 @@
         #gm-controls { display: none; gap: 5px; margin-top: 5px; }
         .gm-btn { background: #333; color: white; border: 1px solid #ff69b4; font-size: 11px; padding: 5px; border-radius: 4px; cursor: pointer; flex: 1; }
         .gm-btn:hover { background: #ff1493; }
+
+        #gm-parts { display: none; gap: 5px; margin-top: 5px; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
     </style>
@@ -176,7 +182,7 @@
             <div id="emo-panel" style="display: none;"></div>
 
             <div id="sc-panel">
-                <div class="sc-title"> 슈퍼챗 후원하기</div>
+                <div class="sc-title">💎 슈퍼챗 후원하기</div>
                 <div class="sc-input-group">
                     <input type="number" id="scAmount" min="1000" max="500000" step="1000" value="5000" title="금액(원)">
                     <input type="text" id="scTextInput" placeholder="여기에 슈퍼챗 메시지를 입력하세요..." onkeypress="handleScKeyPress(event)">
