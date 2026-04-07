@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        /* 🚨 [업데이트] body 배경을 solid 검은색(#0f0f0f)에서 이미지로 변경 */
         body {
             font-family: 'Malgun Gothic', sans-serif;
             color: #ffffff;
@@ -18,15 +17,13 @@
             height: 100vh;
             overflow: hidden;
 
-            /* 배경 이미지 설정 영역 */
-            background-image: url('background.png'); /* 업로드한 이미지 파일명 */
-            background-size: cover; /* 이미지가 화면 전체를 꽉 채우도록 확대/축소 */
-            background-position: center; /* 이미지를 중앙에 배치 */
-            background-repeat: no-repeat; /* 이미지 반복 안 함 */
-            background-attachment: fixed; /* 스크롤해도 배경은 고정됨 (추천) */
+            background-image: url('background.png'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            background-attachment: fixed; 
         }
 
-        /* 🚨 [업데이트] 로그인 화면의 검은 배경을 투명하게 만들어 body 배경이 보이도록 함 */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -34,7 +31,7 @@
             justify-content: center;
             height: 100vh;
             padding: 20px;
-            background-color: transparent; /* 투명하게 변경 */
+            background-color: transparent; 
         }
 
         #login-logo { max-width: 600px; max-height: 300px; margin-bottom: 20px; object-fit: contain; }
@@ -48,10 +45,9 @@
         
         #chat-screen { display: none; flex-direction: column; height: 100vh; }
         
-        /* 🚨 [업데이트] 헤더 배경을 반투명하게 */
         #chat-header {
             padding: 10px 15px;
-            background-color: rgba(0, 0, 0, 0.6); /* 반투명 검은색 */
+            background-color: rgba(0, 0, 0, 0.6); 
             border-bottom: 1px solid #333;
             font-weight: bold;
             color: #ff69b4;
@@ -60,7 +56,6 @@
             z-index: 5;
         }
 
-        /* 🚨 [업데이트] 채팅창 영역을 투명하게 해서 배경이미지가 보이도록 함 */
         #chat-container {
             flex-grow: 1;
             padding: 15px 10px;
@@ -68,10 +63,9 @@
             display: flex;
             flex-direction: column;
             scroll-behavior: smooth;
-            background-color: transparent; /* 투명하게 변경 */
+            background-color: transparent; 
         }
         
-        /* 채팅줄 스타일은 유지하되 가독성을 위해 살짝 배경 처리 */
         .chat-line {
             flex-shrink: 0;
             display: flex;
@@ -81,7 +75,7 @@
             animation: fadeIn 0.2s ease-in;
             position: relative;
             border-radius: 4px;
-            background-color: rgba(0,0,0,0.3); /* 가독성을 위한 아주 옅은 배경 */
+            background-color: rgba(0,0,0,0.3); 
         }
         .chat-line:hover { background-color: rgba(255,255,255,0.05); }
         .yt-avatar { width: 24px; height: 24px; border-radius: 50%; background-color: #ff69b4; color: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 12px; flex-shrink: 0; }
@@ -90,8 +84,7 @@
         .yt-author.gm { color: #ff69b4; background: #333; padding: 2px 4px; border-radius: 4px; font-size: 11px;}
         .yt-text { color: #ffffff; word-break: break-all; }
 
-        /* 🚨 [업데이트] 이모티콘 80x80 강제 고정 및 찌그러짐 방지(object-fit) */
-        .chat-emoticon { width: 150px; height: 150px; object-fit: contain; display: block; margin-top: 5px; background: transparent; }
+        .chat-emoticon { width: 80px; height: 80px; object-fit: contain; display: block; margin-top: 5px; background: transparent; }
 
         .sc-container { flex-shrink: 0; border-radius: 4px; margin-bottom: 8px; overflow: hidden; font-size: 13px; width: 100%; animation: fadeIn 0.3s ease-in; position: relative; }
         .sc-header { padding: 8px 12px; display: flex; align-items: center; }
@@ -103,10 +96,9 @@
         .deleted-text { color: #ff0000; font-weight: bold; font-style: italic; text-shadow: 0 0 3px #ff0000; }
         .censor-btn { display: none; background: #ff0000; color: white; border: none; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; position: absolute; right: 10px; top: 10px; }
 
-        /* 🚨 [업데이트] 하단 입력창 영역도 반투명하게 처리 */
         #input-area {
             flex-shrink: 0;
-            background-color: rgba(0, 0, 0, 0.7); /* 반투명 검은색 */
+            background-color: rgba(0, 0, 0, 0.7); 
             padding: 10px;
             border-top: 1px solid #333;
             display: flex;
@@ -135,7 +127,6 @@
 
         .input-row { display: flex; gap: 5px; align-items: center; }
         #currentNickname { width: 70px; padding: 8px 5px; background: #111; border: 1px solid #ff69b4; color: #ff69b4; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; }
-        /* 입력란도 투명도 처리 */
         #customInput { flex-grow: 1; padding: 10px; background-color: rgba(34, 34, 34, 0.7); border: 1px solid #555; color: white; border-radius: 20px; font-size: 13px; outline: none; }
         #customInput:focus { border-color: #ff69b4; }
         #customInput:disabled, #scTextInput:disabled, #scAmount:disabled { background-color: #111; cursor: not-allowed; opacity: 0.6; }
@@ -158,7 +149,7 @@
 
     <div id="login-screen">
         <img id="login-logo" src="login_image.png" alt="" onerror="this.style.display='none'">
-        <div class="login-title">LOGIN</div>
+        <div class="login-title">SYSTEM_CONNECT</div>
 
         <div class="login-box">
             <label>▶ 플레이어 모드</label>
@@ -167,8 +158,8 @@
         </div>
         <div style="width:100%; height:1px; background:#333; margin: 10px 0;"></div>
         <div class="login-box">
-            <label>▶ GM 모드</label>
-            <input type="text" id="gmName" class="login-input" placeholder="닉네임 작성란">
+            <label>▶ 관리자(GM) 모드</label>
+            <input type="text" id="gmName" class="login-input" placeholder="GM 닉네임 (예: 시스템, 신)">
             <input type="password" id="gmPassword" class="login-input" placeholder="비밀번호 입력">
             <button class="login-btn gm" onclick="login('gm')">관리자 권한 실행</button>
         </div>
@@ -182,7 +173,7 @@
             <div id="emo-panel" style="display: none;"></div>
 
             <div id="sc-panel">
-                <div class="sc-title">슈퍼챗 후원하기</div>
+                <div class="sc-title">💎 슈퍼챗 후원하기</div>
                 <div class="sc-input-group">
                     <input type="number" id="scAmount" min="1000" max="500000" step="1000" value="5000" title="금액(원)">
                     <input type="text" id="scTextInput" placeholder="여기에 슈퍼챗 메시지를 입력하세요..." onkeypress="handleScKeyPress(event)">
@@ -212,7 +203,7 @@
             <div id="gm-controls" class="input-row">
                 <button id="toggleAutoBtn" class="gm-btn" onclick="toggleAutoChat()">자동채팅 켜기</button>
                 <button id="toggleStreamBtn" class="gm-btn" onclick="toggleStream()" style="background-color: #d32f2f; border-color: #d32f2f;">🔴 방송 끄기</button>
-                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;">초기화</button>
+                <button class="gm-btn" onclick="clearChat()" style="background-color: #d32f2f; border-color: #d32f2f;">🔥 초기화</button>
             </div>
         </div>
     </div>
@@ -264,7 +255,7 @@
             } else if (mode === 'gm') {
                 const pw = document.getElementById('gmPassword').value;
                 const name = document.getElementById('gmName').value.trim() || 'GM_MASTER';
-                if (pw !== "2273") return alert('비밀번호가 틀렸습니다.');
+                if (pw !== "1234") return alert('비밀번호가 틀렸습니다.');
                 nicknameInput.value = name;
                 currentUserMode = 'gm';
                 document.getElementById('gm-controls').style.display = 'flex';
@@ -505,19 +496,14 @@
             }, 50);
         }
 
-        /* =========================================
-           🚨 [업데이트] Normal + HO 시트 혼합 시스템
-           ========================================= */
-        let currentPart = 'Normal'; // 처음에는 Normal이 기본값
+        let currentPart = 'Normal'; 
         let excelChatList = [];
         let autoChatInterval;
         let isAutoChatOn = false;
 
-        // 파트 변경 버튼을 눌렀을 때 실행되는 함수
         async function changePart(part) {
             currentPart = part;
 
-            // 버튼 색상 업데이트 (선택된 파트는 핑크색)
             ['Normal', 'HO1', 'HO2', 'HO3', 'HO4'].forEach(p => {
                 const btn = document.getElementById(`btn-${p}`);
                 if (btn) {
@@ -526,13 +512,11 @@
                 }
             });
 
-            // 자동채팅이 켜져있으면 즉시 바뀐 시트로 데이터 로드
             if (isAutoChatOn) {
                 await loadExcelAutoChat(currentPart);
             }
         }
 
-        // 엑셀 파일(autochat.xlsx)에서 Normal과 선택된 HO 데이터를 섞어서 가져옵니다.
         async function loadExcelAutoChat(selectedPart) {
             try {
                 const response = await fetch('autochat.xlsx');
@@ -541,13 +525,12 @@
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
-                excelChatList = []; // 배열 초기화
+                excelChatList = []; 
 
-                // 1️⃣ 무조건 'Normal' 시트의 데이터를 읽어서 담습니다.
                 const normalSheet = workbook.Sheets['Normal'];
                 if (normalSheet) {
                     const rows = XLSX.utils.sheet_to_json(normalSheet, { header: 1 });
-                    for (let i = 1; i < rows.length; i++) { // 1번째 줄(헤더) 건너뛰고 2번째 줄부터
+                    for (let i = 1; i < rows.length; i++) { 
                         const row = rows[i];
                         if (row && row.length >= 2 && row[0] && row[1]) {
                             excelChatList.push({ u: row[0].toString().trim(), t: row[1].toString().trim() });
@@ -555,7 +538,6 @@
                     }
                 }
 
-                // 2️⃣ 선택된 파트가 'Normal'이 아니라면(HO 버튼을 눌렀다면), 해당 HO 시트도 읽어서 추가합니다.
                 if (selectedPart !== 'Normal') {
                     const partSheet = workbook.Sheets[selectedPart];
                     if (partSheet) {
@@ -578,13 +560,19 @@
             }
         }
 
+        // 🚨 [업데이트] 무작위 닉네임과 댓글을 각각 분리하여 섞어 전송하는 기능
         function sendAutoChatFromExcel() {
             if (!isStreamLive || excelChatList.length === 0) return;
-            // 합쳐진 전체 리스트(Normal + HO)에서 무작위로 하나 뽑아서 전송
-            const randomPick = excelChatList[Math.floor(Math.random() * excelChatList.length)];
+            
+            // 닉네임과 댓글을 각각 따로 독립적으로 추첨합니다!
+            const randomUserIndex = Math.floor(Math.random() * excelChatList.length);
+            const randomTextIndex = Math.floor(Math.random() * excelChatList.length);
+
+            const randomUser = excelChatList[randomUserIndex].u;
+            const randomText = excelChatList[randomTextIndex].t;
 
             db.ref('messages').push({
-                username: randomPick.u, text: randomPick.t, isSuperchat: false,
+                username: randomUser, text: randomText, isSuperchat: false,
                 amount: 0, censored: false, timestamp: firebase.database.ServerValue.TIMESTAMP
             });
         }
@@ -595,7 +583,6 @@
 
             if (isAutoChatOn) {
                 btn.textContent = "자동채팅 끄기"; btn.style.backgroundColor = "#ff0000";
-                // 자동채팅을 켤 때마다 최신 설정으로 엑셀 데이터를 로드합니다.
                 await loadExcelAutoChat(currentPart);
                 autoChatInterval = setInterval(sendAutoChatFromExcel, Math.random() * 2000 + 3000);
             } else {
